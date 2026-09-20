@@ -15,8 +15,14 @@ class BoatCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // red_kayak and yellow_kayak are already rendered at ~ -45 deg diagonal angle
+    // vertical assets (pelican_athena, sundolphin) are rotated on the home card
+    final bool isAlreadyAngled =
+        boat.id == 'lifetime-youth' || boat.id == 'sunny-island';
+    final double cardRotation = isAlreadyAngled ? 0.0 : -0.72;
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 24),
+      margin: const EdgeInsets.only(bottom: 28),
       child: GestureDetector(
         onTap: onTap ??
             () {
@@ -44,31 +50,31 @@ class BoatCardWidget extends StatelessWidget {
               );
             },
         child: SizedBox(
-          height: 160,
+          height: 165,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              // Colored Card Background Container
+              // 1. Colored Card Background Container
               Positioned(
                 left: 0,
                 right: 0,
                 bottom: 0,
-                top: 16,
+                top: 14,
                 child: Container(
                   decoration: BoxDecoration(
                     color: boat.cardColor,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: boat.cardColor.withValues(alpha: 0.35),
-                        blurRadius: 18,
-                        offset: const Offset(0, 8),
+                        color: boat.cardColor.withValues(alpha: 0.38),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
                       ),
                     ],
                   ),
                   padding: const EdgeInsets.only(
                     left: 22,
-                    bottom: 22,
+                    bottom: 24,
                     top: 22,
                     right: 140,
                   ),
@@ -101,19 +107,19 @@ class BoatCardWidget extends StatelessWidget {
                 ),
               ),
 
-              // Overlapping Floating 3D Kayak Asset with smooth rotation & Hero flight
+              // 2. Overlapping Floating 3D Kayak breaking cleanly through boundaries
               Positioned(
-                right: -10,
-                top: -8,
-                bottom: 6,
-                width: 195,
+                right: -18,
+                top: -28,
+                bottom: -20,
+                width: 220,
                 child: Hero(
                   tag: 'boat-image-${boat.id}',
                   flightShuttleBuilder: (flightContext, animation,
                       flightDirection, fromHeroContext, toHeroContext) {
                     final rotationTween = Tween<double>(
-                      begin: -0.15,
-                      end: 0.0,
+                      begin: cardRotation,
+                      end: isAlreadyAngled ? 0.72 : 0.0,
                     );
                     return AnimatedBuilder(
                       animation: animation,
@@ -126,10 +132,13 @@ class BoatCardWidget extends StatelessWidget {
                     );
                   },
                   child: Transform.rotate(
-                    angle: -0.15,
-                    child: Image.asset(
-                      boat.imageAsset,
-                      fit: BoxFit.contain,
+                    angle: cardRotation,
+                    child: Transform.scale(
+                      scale: isAlreadyAngled ? 1.0 : 1.25,
+                      child: Image.asset(
+                        boat.imageAsset,
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
                 ),
