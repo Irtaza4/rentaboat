@@ -32,46 +32,28 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
         bottom: false,
         child: Column(
           children: [
-            // 1. Top Bar: Hamburger Menu on Left, Profile Icon on Right
+            // 1. Top Bar: Back Arrow on Left, Profile Icon on Right
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Minimalist Double-Line Menu Icon (Tapping pops back to Home)
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    behavior: HitTestBehavior.opaque,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 4.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 18,
-                            height: 2.2,
-                            decoration: BoxDecoration(
-                              color: AppTheme.textDark,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Container(
-                            width: 26,
-                            height: 2.2,
-                            decoration: BoxDecoration(
-                              color: AppTheme.textDark,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ],
-                      ),
+                  // Back Arrow Button (Navigates back to Home)
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: AppTheme.textDark,
+                      size: 26,
+                    ),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 40,
+                      minHeight: 40,
                     ),
                   ),
 
-                  // Profile Icon
+                  // Profile Silhouette Icon
                   Container(
                     width: 40,
                     height: 40,
@@ -88,9 +70,9 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
               ),
             ),
 
-            const SizedBox(height: 36),
+            const SizedBox(height: 24),
 
-            // 2. Main Expanded Container with Overflowing Vertical Kayak
+            // 2. Main Expanded Container with Upright Vertical Kayak
             Expanded(
               child: Stack(
                 clipBehavior: Clip.none,
@@ -108,17 +90,19 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
                     ),
                   ),
 
-                  // Vertical Kayak Overflowing Past Top Edge onto White Header
+                  // Upright Vertical Kayak breaking through the top rounded edge
                   Positioned(
-                    top: -100,
-                    bottom: 120,
-                    left: 24,
-                    right: 24,
+                    top: -90,
+                    bottom: 110,
+                    left: 20,
+                    right: 20,
                     child: Hero(
                       tag: 'boat-image-${boat.id}',
-                      child: Image.asset(
-                        boat.imageAsset,
-                        fit: BoxFit.contain,
+                      child: Center(
+                        child: Image.asset(
+                          boat.imageAsset,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),

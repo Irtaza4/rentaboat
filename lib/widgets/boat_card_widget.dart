@@ -15,11 +15,7 @@ class BoatCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // red_kayak and yellow_kayak are already rendered at ~ -45 deg diagonal angle
-    // vertical assets (pelican_athena, sundolphin) are rotated on the home card
-    final bool isAlreadyAngled =
-        boat.id == 'lifetime-youth' || boat.id == 'sunny-island';
-    final double cardRotation = isAlreadyAngled ? 0.0 : -0.72;
+    const double cardRotation = -0.72; // ~-41 degrees slant on the card
 
     return Container(
       margin: const EdgeInsets.only(bottom: 28),
@@ -29,8 +25,8 @@ class BoatCardWidget extends StatelessWidget {
               Navigator.push(
                 context,
                 PageRouteBuilder(
-                  transitionDuration: const Duration(milliseconds: 600),
-                  reverseTransitionDuration: const Duration(milliseconds: 500),
+                  transitionDuration: const Duration(milliseconds: 650),
+                  reverseTransitionDuration: const Duration(milliseconds: 550),
                   pageBuilder: (context, animation, secondaryAnimation) =>
                       BoatDetailScreen(boat: boat),
                   transitionsBuilder:
@@ -109,8 +105,8 @@ class BoatCardWidget extends StatelessWidget {
 
               // 2. Overlapping Floating 3D Kayak breaking cleanly through boundaries
               Positioned(
-                right: -18,
-                top: -28,
+                right: -15,
+                top: -24,
                 bottom: -20,
                 width: 220,
                 child: Hero(
@@ -119,7 +115,7 @@ class BoatCardWidget extends StatelessWidget {
                       flightDirection, fromHeroContext, toHeroContext) {
                     final rotationTween = Tween<double>(
                       begin: cardRotation,
-                      end: isAlreadyAngled ? 0.72 : 0.0,
+                      end: 0.0, // Rotates into upright vertical posture!
                     );
                     return AnimatedBuilder(
                       animation: animation,
@@ -133,12 +129,9 @@ class BoatCardWidget extends StatelessWidget {
                   },
                   child: Transform.rotate(
                     angle: cardRotation,
-                    child: Transform.scale(
-                      scale: isAlreadyAngled ? 1.0 : 1.25,
-                      child: Image.asset(
-                        boat.imageAsset,
-                        fit: BoxFit.contain,
-                      ),
+                    child: Image.asset(
+                      boat.imageAsset,
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),
