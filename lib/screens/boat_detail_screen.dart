@@ -92,13 +92,21 @@ class _BoatDetailScreenState extends State<BoatDetailScreen>
   @override
   Widget build(BuildContext context) {
     final boats = _repository.boats;
-    final currentBoat = boats[_currentIndex.clamp(0, boats.length - 1)];
+    final activeIndex = _currentPageValue.round().clamp(0, boats.length - 1);
+    final currentBoat = boats[activeIndex];
     final Color dynamicBgColor = _interpolateColor(boats);
+    final size = MediaQuery.of(context).size;
+    final topPadding = MediaQuery.of(context).padding.top;
 
     final double paddleCost = 28.25 * _quantity;
     final double lifeVestCost = 12.50 * _quantity;
     const double pledgeCost = 10.00;
     final double totalCost = paddleCost + lifeVestCost + pledgeCost;
+
+    // Proportional heights matching reference design
+    final double collapsedContainerTop = size.height * 0.31;
+    final double collapsedBoatTop = size.height * 0.14;
+    final double collapsedBoatHeight = size.height * 0.45;
 
     return AnimatedBuilder(
       animation: _expandProgress,
@@ -109,7 +117,7 @@ class _BoatDetailScreenState extends State<BoatDetailScreen>
           backgroundColor: Colors.white,
           body: Stack(
             children: [
-              // 1. Top Bar when in normal view (Fades out when expanding)
+              // 1. Top Bar when collapsed (Menu/Back icon & Profile icon)
               Positioned(
                 top: 0,
                 left: 0,
@@ -119,7 +127,7 @@ class _BoatDetailScreenState extends State<BoatDetailScreen>
                   child: Opacity(
                     opacity: (1.0 - progress * 2.0).clamp(0.0, 1.0),
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                      padding: const EdgeInsets.fromLTRB(22, 10, 22, 0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -155,12 +163,15 @@ class _BoatDetailScreenState extends State<BoatDetailScreen>
                 ),
               ),
 
-              // 2. Main Colored Background Container (Expands to full screen on tap)
+              // 2. Main Colored Background Container (Starts at ~26% of screen)
               Positioned(
                 left: 0,
                 right: 0,
                 bottom: 0,
-                top: Tween<double>(begin: 80.0, end: 0.0).transform(progress),
+                top: Tween<double>(
+                  begin: collapsedContainerTop,
+                  end: 0.0,
+                ).transform(progress),
                 child: Container(
                   decoration: BoxDecoration(
                     color: dynamicBgColor,
@@ -174,16 +185,12 @@ class _BoatDetailScreenState extends State<BoatDetailScreen>
                 ),
               ),
 
-              // 3. Upright Vertical Kayak (Glides sleekly UP out of screen on tap)
-              Positioned(
-                top: Tween<double>(begin: -10.0, end: -750.0).transform(progress),
-                bottom: Tween<double>(begin: 110.0, end: 800.0).transform(progress),
-                left: 0,
-                right: 0,
+              // 3. Upright Vertical Kayaks with Full-Screen Vertical PageView
+              Positioned.fill(
                 child: Opacity(
                   opacity: (1.0 - progress * 1.5).clamp(0.0, 1.0),
-                  child: GestureDetector(
-                    onTap: _toggleExpand,
+                  child: Transform.translate(
+                    offset: Offset(0, -progress * size.height * 0.75),
                     child: PageView.builder(
                       controller: _pageController,
                       scrollDirection: Axis.vertical,
@@ -200,7 +207,7 @@ class _BoatDetailScreenState extends State<BoatDetailScreen>
                         final b = boats[index];
                         final Widget boatImage = Center(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            padding: const EdgeInsets.symmetric(horizontal: 42),
                             child: Image.asset(
                               b.imageAsset,
                               fit: BoxFit.contain,
@@ -208,13 +215,26 @@ class _BoatDetailScreenState extends State<BoatDetailScreen>
                           ),
                         );
 
-                        if (b.id == widget.boat.id) {
-                          return Hero(
-                            tag: 'boat-image-${b.id}',
-                            child: boatImage,
-                          );
-                        }
-                        return boatImage;
+                        return Stack(
+                          children: [
+                            Positioned(
+                              top: collapsedBoatTop,
+                              height: collapsedBoatHeight,
+                              left: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: _toggleExpand,
+                                child: b.id == widget.boat.id
+                                    ? Hero(
+                                        tag: 'boat-image-${b.id}',
+                                        child: boatImage,
+                                      )
+                                    : boatImage,
+                              ),
+                            ),
+                          ],
+                        );
                       },
                     ),
                   ),
@@ -226,8 +246,8 @@ class _BoatDetailScreenState extends State<BoatDetailScreen>
                 left: 0,
                 right: 0,
                 top: Tween<double>(
-                  begin: MediaQuery.of(context).size.height - 180.0,
-                  end: MediaQuery.of(context).padding.top + 24.0,
+                  begin: size.height - 180.0,
+                  end: topPadding + 20.0,
                 ).transform(progress),
                 child: GestureDetector(
                   onTap: _toggleExpand,
@@ -239,14 +259,14 @@ class _BoatDetailScreenState extends State<BoatDetailScreen>
                         currentBoat.name,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.outfit(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w600,
                           color: Colors.white,
                           letterSpacing: -0.3,
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 18),
 
                       // Stepper Pill [ − 1 + ]
                       _buildStepperPill(dynamicBgColor),
@@ -262,8 +282,8 @@ class _BoatDetailScreenState extends State<BoatDetailScreen>
                   right: 0,
                   bottom: 0,
                   top: Tween<double>(
-                    begin: MediaQuery.of(context).size.height,
-                    end: MediaQuery.of(context).padding.top + 160.0,
+                    begin: size.height,
+                    end: topPadding + 160.0,
                   ).transform(progress),
                   child: Opacity(
                     opacity: progress.clamp(0.0, 1.0),
@@ -412,7 +432,7 @@ class _BoatDetailScreenState extends State<BoatDetailScreen>
               // 6. Floating Tap Back / Collapse Arrow at top when expanded
               if (progress > 0.5)
                 Positioned(
-                  top: MediaQuery.of(context).padding.top + 8,
+                  top: topPadding + 8,
                   left: 18,
                   child: Opacity(
                     opacity: ((progress - 0.5) * 2).clamp(0.0, 1.0),
@@ -435,16 +455,16 @@ class _BoatDetailScreenState extends State<BoatDetailScreen>
 
   Widget _buildStepperPill(Color dynamicBgColor) {
     return Container(
-      width: 156,
-      height: 52,
+      width: 146,
+      height: 48,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
+            color: Colors.black.withValues(alpha: 0.10),
+            blurRadius: 16,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
