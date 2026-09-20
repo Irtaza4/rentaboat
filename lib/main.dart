@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'screens/main_shell_screen.dart';
+import 'screens/home_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -24,7 +24,7 @@ class RentBoatApp extends StatelessWidget {
       title: 'Rent a Boat',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const MainShellScreen(),
+      home: const HomeScreen(),
     );
   }
 }

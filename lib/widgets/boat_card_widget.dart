@@ -23,12 +23,20 @@ class BoatCardWidget extends StatelessWidget {
               Navigator.push(
                 context,
                 PageRouteBuilder(
+                  transitionDuration: const Duration(milliseconds: 600),
+                  reverseTransitionDuration: const Duration(milliseconds: 500),
                   pageBuilder: (context, animation, secondaryAnimation) =>
                       BoatDetailScreen(boat: boat),
                   transitionsBuilder:
                       (context, animation, secondaryAnimation, child) {
+                    final curvedAnimation = CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeInOutCubicEmphasized,
+                      reverseCurve: Curves.easeInOutCubic,
+                    );
                     return FadeTransition(
-                      opacity: animation,
+                      opacity: Tween<double>(begin: 0.0, end: 1.0)
+                          .animate(curvedAnimation),
                       child: child,
                     );
                   },
@@ -93,14 +101,30 @@ class BoatCardWidget extends StatelessWidget {
                 ),
               ),
 
-              // Overlapping Floating 3D Kayak Asset
+              // Overlapping Floating 3D Kayak Asset with smooth rotation & Hero flight
               Positioned(
                 right: -10,
                 top: -8,
                 bottom: 6,
                 width: 195,
                 child: Hero(
-                  tag: 'boat-${boat.id}',
+                  tag: 'boat-image-${boat.id}',
+                  flightShuttleBuilder: (flightContext, animation,
+                      flightDirection, fromHeroContext, toHeroContext) {
+                    final rotationTween = Tween<double>(
+                      begin: -0.15,
+                      end: 0.0,
+                    );
+                    return AnimatedBuilder(
+                      animation: animation,
+                      builder: (context, child) {
+                        return Transform.rotate(
+                          angle: rotationTween.evaluate(animation),
+                          child: toHeroContext.widget,
+                        );
+                      },
+                    );
+                  },
                   child: Transform.rotate(
                     angle: -0.15,
                     child: Image.asset(

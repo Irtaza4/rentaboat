@@ -36,7 +36,7 @@ class _MainShellScreenState extends State<MainShellScreen> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      HomeScreen(onNavigateTab: _onTabSelected),
+      const HomeScreen(),
       const SearchScreen(),
       const MyBookingsScreen(),
       const FavoritesScreen(),

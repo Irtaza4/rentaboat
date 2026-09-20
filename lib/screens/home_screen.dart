@@ -5,14 +5,10 @@ import '../data/mock_boats.dart';
 import '../theme/app_theme.dart';
 import '../widgets/boat_card_widget.dart';
 import 'search_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  final Function(int)? onNavigateTab;
-
-  const HomeScreen({
-    super.key,
-    this.onNavigateTab,
-  });
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -20,7 +16,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final BoatRepository _repository = BoatRepository();
-  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -31,7 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _repository.removeListener(_onRepoChanged);
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -62,13 +56,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Minimalist Double-Line Menu Icon
                   InkWell(
                     onTap: () {
-                      if (widget.onNavigateTab != null) {
-                        widget.onNavigateTab!(1); // Navigate to search/filter
-                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SearchScreen(),
+                        ),
+                      );
                     },
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 4.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
@@ -98,17 +96,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Profile Icon
                   InkWell(
                     onTap: () {
-                      if (widget.onNavigateTab != null) {
-                        widget.onNavigateTab!(4); // Navigate to Profile
-                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfileScreen(),
+                        ),
+                      );
                     },
                     borderRadius: BorderRadius.circular(20),
                     child: Container(
                       width: 40,
                       height: 40,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(20),
+                        shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         CupertinoIcons.person,
@@ -138,16 +139,12 @@ class _HomeScreenState extends State<HomeScreen> {
               // Rounded Pill Search Input
               GestureDetector(
                 onTap: () {
-                  if (widget.onNavigateTab != null) {
-                    widget.onNavigateTab!(1);
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SearchScreen(),
-                      ),
-                    );
-                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SearchScreen(),
+                    ),
+                  );
                 },
                 child: Container(
                   height: 50,
@@ -186,8 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Stacked Colorful Boat Cards with Overlapping 3D Assets
               ...boats.map((boat) => BoatCardWidget(boat: boat)),
 
-              // Bottom spacing for floating navigation bar
-              const SizedBox(height: 100),
+              const SizedBox(height: 36),
             ],
           ),
         ),

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/boat.dart';
-import 'main_shell_screen.dart';
+import 'home_screen.dart';
+import 'my_bookings_screen.dart';
 
 class BookingConfirmationScreen extends StatelessWidget {
   final Booking booking;
@@ -54,7 +55,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const MainShellScreen(),
+                        builder: (context) => const HomeScreen(),
                       ),
                       (route) => false,
                     );
@@ -139,7 +140,8 @@ class BookingConfirmationScreen extends StatelessWidget {
                         backgroundColor: const Color(0xFFFA5463),
                         foregroundColor: Colors.white,
                         elevation: 6,
-                        shadowColor: const Color(0xFFFA5463).withValues(alpha: 0.4),
+                        shadowColor:
+                            const Color(0xFFFA5463).withValues(alpha: 0.4),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
@@ -160,12 +162,11 @@ class BookingConfirmationScreen extends StatelessWidget {
                   // Secondary action: "Back to Explore"
                   TextButton(
                     onPressed: () {
-                      Navigator.pushAndRemoveUntil(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const MainShellScreen(initialIndex: 2), // Navigate to Bookings tab
+                          builder: (context) => const MyBookingsScreen(),
                         ),
-                        (route) => false,
                       );
                     },
                     child: Text(
@@ -252,7 +253,7 @@ class BookingConfirmationScreen extends StatelessWidget {
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const MainShellScreen(),
+                        builder: (context) => const HomeScreen(),
                       ),
                       (route) => false,
                     );
