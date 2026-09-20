@@ -20,11 +20,52 @@ class BoatDetailScreen extends StatefulWidget {
 
 class _BoatDetailScreenState extends State<BoatDetailScreen> {
   final BoatRepository _repository = BoatRepository();
+  late PageController _pageController;
+  late int _currentIndex;
+  double _currentPageValue = 0.0;
   int _quantity = 1;
 
   @override
+  void initState() {
+    super.initState();
+    final boats = _repository.boats;
+    _currentIndex = boats.indexWhere((b) => b.id == widget.boat.id);
+    if (_currentIndex == -1) _currentIndex = 0;
+    _currentPageValue = _currentIndex.toDouble();
+    _pageController = PageController(initialPage: _currentIndex);
+
+    _pageController.addListener(() {
+      setState(() {
+        _currentPageValue = _pageController.page ?? _currentIndex.toDouble();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  Color _interpolateColor(List<Boat> boats) {
+    if (boats.isEmpty) return const Color(0xFF2F54EB);
+    final int lowerIndex = _currentPageValue.floor().clamp(0, boats.length - 1);
+    final int upperIndex = _currentPageValue.ceil().clamp(0, boats.length - 1);
+    final double fraction = _currentPageValue - lowerIndex;
+
+    return Color.lerp(
+          boats[lowerIndex].cardColor,
+          boats[upperIndex].cardColor,
+          fraction,
+        ) ??
+        boats[lowerIndex].cardColor;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final boat = widget.boat;
+    final boats = _repository.boats;
+    final currentBoat = boats[_currentIndex.clamp(0, boats.length - 1)];
+    final Color dynamicBgColor = _interpolateColor(boats);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -72,17 +113,17 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
 
             const SizedBox(height: 24),
 
-            // 2. Main Expanded Container with Upright Vertical Kayak
+            // 2. Main Expanded Container with Vertical PageView
             Expanded(
               child: Stack(
                 clipBehavior: Clip.none,
                 alignment: Alignment.center,
                 children: [
-                  // Colored Bottom Container (Full width, rounded top, fills bottom of screen)
+                  // Smoothly Interpolating Colored Bottom Container
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: boat.cardColor,
+                        color: dynamicBgColor,
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(42),
                         ),
@@ -90,20 +131,44 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
                     ),
                   ),
 
-                  // Upright Vertical Kayak breaking through the top rounded edge
+                  // Vertical PageView for sleek boat transitions (Swipe Up -> boat goes up, next boat enters from below)
                   Positioned(
-                    top: -90,
+                    top: -95,
                     bottom: 110,
-                    left: 20,
-                    right: 20,
-                    child: Hero(
-                      tag: 'boat-image-${boat.id}',
-                      child: Center(
-                        child: Image.asset(
-                          boat.imageAsset,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
+                    left: 0,
+                    right: 0,
+                    child: PageView.builder(
+                      controller: _pageController,
+                      scrollDirection: Axis.vertical,
+                      physics: const BouncingScrollPhysics(),
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
+                      itemCount: boats.length,
+                      itemBuilder: (context, index) {
+                        final b = boats[index];
+                        final Widget boatImage = Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Image.asset(
+                              b.imageAsset,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        );
+
+                        // Only apply Hero to the initial opened boat
+                        if (b.id == widget.boat.id) {
+                          return Hero(
+                            tag: 'boat-image-${b.id}',
+                            child: boatImage,
+                          );
+                        }
+
+                        return boatImage;
+                      },
                     ),
                   ),
 
@@ -117,15 +182,19 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Boat Name
-                          Text(
-                            boat.name,
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.outfit(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                              letterSpacing: -0.3,
+                          // Animated Boat Name with sleek crossfade
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 250),
+                            child: Text(
+                              currentBoat.name,
+                              key: ValueKey<String>(currentBoat.id),
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.outfit(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                letterSpacing: -0.3,
+                              ),
                             ),
                           ),
 
@@ -134,7 +203,7 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
                           // Stepper Pill [ −  1  + ]
                           GestureDetector(
                             onTap: () {
-                              _navigateToConfirmation();
+                              _navigateToConfirmation(currentBoat);
                             },
                             child: Container(
                               width: 156,
@@ -166,7 +235,7 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
                                     icon: Icon(
                                       CupertinoIcons.minus,
                                       size: 19,
-                                      color: boat.cardColor,
+                                      color: dynamicBgColor,
                                     ),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(
@@ -195,7 +264,7 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
                                     icon: Icon(
                                       CupertinoIcons.plus,
                                       size: 19,
-                                      color: boat.cardColor,
+                                      color: dynamicBgColor,
                                     ),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(
@@ -220,14 +289,14 @@ class _BoatDetailScreenState extends State<BoatDetailScreen> {
     );
   }
 
-  void _navigateToConfirmation() {
+  void _navigateToConfirmation(Boat boat) {
     final booking = Booking(
       orderNumber: '#12D347',
-      boat: widget.boat,
+      boat: boat,
       date: DateTime.now().add(const Duration(days: 1)),
       quantity: _quantity,
-      guests: widget.boat.capacity * _quantity,
-      totalPrice: widget.boat.pricePerDay * _quantity,
+      guests: boat.capacity * _quantity,
+      totalPrice: boat.pricePerDay * _quantity,
     );
     _repository.addBooking(booking);
 
