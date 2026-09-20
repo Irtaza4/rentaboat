@@ -18,7 +18,7 @@ class BoatCardWidget extends StatelessWidget {
     const double cardRotation = -0.72; // ~-41 degrees slant on the card
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 28),
+      margin: const EdgeInsets.only(bottom: 22),
       child: GestureDetector(
         onTap: onTap ??
             () {
@@ -46,7 +46,7 @@ class BoatCardWidget extends StatelessWidget {
               );
             },
         child: SizedBox(
-          height: 165,
+          height: 155,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -55,23 +55,28 @@ class BoatCardWidget extends StatelessWidget {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                top: 14,
+                top: 12,
                 child: Container(
                   decoration: BoxDecoration(
                     color: boat.cardColor,
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(22),
                     boxShadow: [
                       BoxShadow(
-                        color: boat.cardColor.withValues(alpha: 0.38),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
+                        color: boat.cardColor.withValues(alpha: 0.22),
+                        blurRadius: 14,
+                        offset: const Offset(0, 6),
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
                   padding: const EdgeInsets.only(
-                    left: 22,
-                    bottom: 24,
-                    top: 22,
+                    left: 20,
+                    bottom: 20,
+                    top: 18,
                     right: 140,
                   ),
                   child: Column(
